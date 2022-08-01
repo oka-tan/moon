@@ -1,0 +1,23 @@
+#Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+#Git
+.git
+.github
+.gitignore
+
+#Executable
+moon
+
+#pprof pdfs
+*.pdf
+
+#Junk
+config.example.json
+config.json
+shell.nix
+README.md
+LICENSE
+

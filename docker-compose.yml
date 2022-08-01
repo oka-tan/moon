@@ -1,0 +1,30 @@
+version: "3.9"
+
+volumes:
+  elasticsearch:
+  koiwai:
+  lnx:
+
+services:
+  moon:
+    build: .
+    deploy:
+      replicas: 1
+
+  lnx:
+    image: chillfish8/lnx:0.9.0
+    volumes:
+      - lnx:/index
+    ports:
+      - "8000:8000"
+
+  koiwai:
+    environment:
+      - POSTGRES_PASSWORD=koiwai
+      - POSTGRES_USER=koiwai
+      - POSTGRES_DB=koiwai
+      - PGDATA=/var/lib/postgresql/data/14.3
+    image: postgres:14.3-alpine
+    volumes:
+      - koiwai:/var/lib/postgresql/data
+      - ./v.sql:/docker-entrypoint-initdb.d/v.sql
