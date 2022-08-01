@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-//Config parametrizes Kaguya's configuration.
+//Config parametrizes Moon's configuration
 type Config struct {
 	Boards         []BoardConfig
 	PostgresConfig PostgresConfig
@@ -15,11 +15,15 @@ type Config struct {
 	BatchSize      int
 }
 
+//BoardConfig parametrizes Moon's configuration
+//for indexing a board in Lnx
 type BoardConfig struct {
 	Name          string
 	ForceRecreate bool
 }
 
+//PostgresConfig parametrizes configuration
+//for the db connection
 type PostgresConfig struct {
 	ConnectionString string
 }

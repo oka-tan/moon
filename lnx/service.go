@@ -37,7 +37,7 @@ func (s *Service) Upsert(posts []db.Post, board string, previousScrape time.Time
 	if len(deletables) > 0 {
 		deleteRequest := buildDeleteRequest(deletables)
 
-		for i := 1; ; i++ {
+		for i := 0; ; i++ {
 			pipeReader, pipeWriter := io.Pipe()
 
 			go func() {
@@ -71,7 +71,7 @@ func (s *Service) Upsert(posts []db.Post, board string, previousScrape time.Time
 
 	lnxPosts := DbPostsToLnxPosts(posts)
 
-	for i := 1; ; i++ {
+	for i := 0; ; i++ {
 		pipeReader, pipeWriter := io.Pipe()
 
 		go func() {
@@ -106,7 +106,7 @@ func (s *Service) Upsert(posts []db.Post, board string, previousScrape time.Time
 }
 
 func (s *Service) Rollback(board string) error {
-	for i := 1; ; i++ {
+	for i := 0; ; i++ {
 		resp, err := s.client.Post(fmt.Sprintf("%s/post_%s/rollback", s.host, board), "", nil)
 
 		if err != nil {
@@ -131,7 +131,7 @@ func (s *Service) Rollback(board string) error {
 }
 
 func (s *Service) Commit(board string) error {
-	for i := 1; ; i++ {
+	for i := 0; ; i++ {
 		resp, err := s.client.Post(fmt.Sprintf("%s/post_%s/commit", s.host, board), "", nil)
 
 		if err != nil {
