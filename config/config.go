@@ -12,7 +12,6 @@ type Config struct {
 	Boards         []BoardConfig
 	PostgresConfig PostgresConfig
 	LnxConfig      LnxConfig
-	BatchSize      int
 }
 
 //BoardConfig parametrizes Moon's configuration
@@ -32,6 +31,8 @@ type LnxConfig struct {
 	Host          string
 	Port          int
 	Configuration IndexConfiguration
+	BatchSize     int
+	NapTime       string
 }
 
 //LoadConfig reads config.json and unmarshals it into a Config struct.

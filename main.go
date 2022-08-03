@@ -30,6 +30,11 @@ func main() {
 
 	lnxService := lnx.NewService(conf.LnxConfig.Host, conf.LnxConfig.Port)
 
+	napTime, err := time.ParseDuration(conf.LnxConfig.NapTime)
+	if err != nil {
+		napTime = 20 * time.Minute
+	}
+
 	for _, board := range conf.Boards {
 		indexTracker := db.IndexTracker{
 			Board:        board.Name,
@@ -64,7 +69,7 @@ func main() {
 
 	for {
 		for _, board := range conf.Boards {
-			dbPosts := make([]db.Post, 0, conf.BatchSize)
+			dbPosts := make([]db.Post, 0, conf.LnxConfig.BatchSize)
 
 			log.Printf("Indexing board %s\n", board.Name)
 
@@ -104,7 +109,7 @@ func main() {
 					Where("last_modified < ?", maxTime).
 					Where("(last_modified, post_number) > (?, ?)", indexTracker.LastModified, indexTracker.PostNumber).
 					Order("last_modified ASC", "post_number ASC").
-					Limit(conf.BatchSize).
+					Limit(conf.LnxConfig.BatchSize).
 					Scan(context.Background())
 
 				if err != nil {
@@ -146,6 +151,6 @@ func main() {
 			}
 		}
 
-		time.Sleep(10 * time.Minute)
+		time.Sleep(napTime)
 	}
 }

@@ -306,15 +306,14 @@ func (s *Service) CreateIndex(board string, indexConfiguration config.IndexConfi
 		log.Fatalf("Error creating index: %v", err)
 	}
 
-	if resp.StatusCode == 200 {
-		return
-	}
+	resp.Body.Close()
 
 	if resp.StatusCode == 400 {
 		log.Printf("Received status 400 creating index for %s\n", board)
 		return
 	}
 
-	log.Fatalf("Received status %s creating index\n", resp.Status)
-	return
+	if resp.StatusCode != 200 {
+		log.Fatalf("Received status %s creating index\n", resp.Status)
+	}
 }
