@@ -159,9 +159,10 @@ func (s *Service) CreateIndex(board string, indexConfiguration config.IndexConfi
 	createIndexRequest := CreateIndexRequest{
 		OverrideIfExists: forceRecreate,
 		Index: CreateIndexRequestIndex{
-			Name:           fmt.Sprintf("post_%s", board),
-			StorageType:    "filesystem",
-			StripStopWords: false,
+			Name:                    fmt.Sprintf("post_%s", board),
+			StorageType:             "filesystem",
+			StripStopWords:          false,
+			SetConjunctionByDefault: true,
 			Fields: map[string]IndexField{
 				"post_number": {
 					Type:    "i64",

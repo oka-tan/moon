@@ -151,6 +151,7 @@ func main() {
 			}
 		}
 
+		log.Println("Napping")
 		time.Sleep(napTime)
 	}
 }
