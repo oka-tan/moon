@@ -38,7 +38,7 @@ func (s *Service) Upsert(posts []db.Post, board string, previousScrape time.Time
 	deletables := make([]db.Post, 0, 10)
 
 	for _, p := range posts {
-		if p.CreatedAt.Before(previousScrape) {
+		if p.CreatedAt.Before(previousScrape) || p.Hidden {
 			deletables = append(deletables, p)
 		}
 	}

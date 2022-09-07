@@ -78,7 +78,9 @@ func DbPostsToLnxPosts(posts []db.Post) []Post {
 	result := make([]Post, 0, len(posts))
 
 	for i := range posts {
-		result = append(result, DbPostToLnxPost(&posts[i]))
+		if !posts[i].Hidden {
+			result = append(result, DbPostToLnxPost(&posts[i]))
+		}
 	}
 
 	return result
