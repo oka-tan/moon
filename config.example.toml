@@ -1,0 +1,20 @@
+#Boards to be indexed by Moon
+[[boards]]
+name = "b"
+#Forces index recreation and reindexes
+#everything from the very start
+force_recreate = false
+
+#Postgres configuration
+[postgres]
+connection_string = "postgres://postgres:12345678@postgres:5432/postgres?sslmode=disable&timeout=30s"
+
+#Lnx configuration
+[lnx]
+host = "http://lnx"
+port = 8000
+reader_threads = 1
+max_concurrency = 5
+writer_buffer = 3000
+batch_size = 200
+nap_time = "10m"

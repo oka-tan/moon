@@ -1,3 +1,5 @@
+//Package lnx wraps writes to Lnx by providing entities
+//and a Service
 package lnx
 
 import (

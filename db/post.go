@@ -1,3 +1,4 @@
+//Package db wraps database access by providing entities
 package db
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
+//Post is a post in the database to be indexed
 type Post struct {
 	bun.BaseModel `bun:"table:post,alias:post"`
 

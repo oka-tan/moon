@@ -16,19 +16,14 @@ import (
 
 func main() {
 	log.Println("Starting Moon")
-
-	conf, err := config.LoadConfig()
-
-	if err != nil {
-		panic(err)
-	}
+	conf := config.LoadConfig()
 
 	time.Sleep(5 * time.Second)
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(conf.PostgresConfig.ConnectionString)))
 	pg := bun.NewDB(sqldb, pgdialect.New())
 
-	lnxService := lnx.NewService(conf.LnxConfig.Host, conf.LnxConfig.Port)
+	lnxService := lnx.NewService(conf.LnxConfig)
 
 	napTime, err := time.ParseDuration(conf.LnxConfig.NapTime)
 	if err != nil {
@@ -64,7 +59,7 @@ func main() {
 			}
 		}
 
-		lnxService.CreateIndex(board.Name, conf.LnxConfig.Configuration, board.ForceRecreate)
+		lnxService.CreateIndex(board)
 	}
 
 	for {
@@ -86,7 +81,6 @@ func main() {
 			err = tx.NewSelect().
 				Model(&indexTracker).
 				Where("board = ?", board.Name).
-				For("NO KEY UPDATE").
 				Scan(context.Background())
 
 			if err != nil {
@@ -111,6 +105,7 @@ func main() {
 					Where("(last_modified, post_number) > (?, ?)", indexTracker.LastModified, indexTracker.PostNumber).
 					Order("last_modified ASC", "post_number ASC").
 					Limit(conf.LnxConfig.BatchSize).
+					For("NO KEY UPDATE").
 					Scan(context.Background())
 
 				if err != nil {

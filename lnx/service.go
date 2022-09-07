@@ -11,20 +11,29 @@ import (
 	"time"
 )
 
+//Service wraps writes and upserts to Lnx
 type Service struct {
-	host   string
-	client http.Client
+	host           string
+	client         http.Client
+	readerThreads  int
+	maxConcurrency int
+	writerBuffer   int
 }
 
-func NewService(host string, port int) Service {
+//NewService constructs and returns a Service
+func NewService(conf config.LnxConfig) Service {
 	return Service{
-		host: fmt.Sprintf("%s:%d/indexes", host, port),
+		host: fmt.Sprintf("%s:%d/indexes", conf.Host, conf.Port),
 		client: http.Client{
 			Timeout: 30 * time.Second,
 		},
+		readerThreads:  conf.ReaderThreads,
+		maxConcurrency: conf.MaxConcurrency,
+		writerBuffer:   conf.WriterBuffer,
 	}
 }
 
+//Upsert upserts an array of posts into Lnx
 func (s *Service) Upsert(posts []db.Post, board string, previousScrape time.Time) error {
 	deletables := make([]db.Post, 0, 10)
 
@@ -105,6 +114,7 @@ func (s *Service) Upsert(posts []db.Post, board string, previousScrape time.Time
 	return nil
 }
 
+//Rollback rolls back index modifications
 func (s *Service) Rollback(board string) error {
 	for i := 0; ; i++ {
 		resp, err := s.client.Post(fmt.Sprintf("%s/post_%s/rollback", s.host, board), "", nil)
@@ -130,6 +140,7 @@ func (s *Service) Rollback(board string) error {
 	}
 }
 
+//Commit commits index modifications
 func (s *Service) Commit(board string) error {
 	for i := 0; ; i++ {
 		resp, err := s.client.Post(fmt.Sprintf("%s/post_%s/commit", s.host, board), "", nil)
@@ -155,11 +166,12 @@ func (s *Service) Commit(board string) error {
 	}
 }
 
-func (s *Service) CreateIndex(board string, indexConfiguration config.IndexConfiguration, forceRecreate bool) {
+//CreateIndex creates the index described by the configuration passed
+func (s *Service) CreateIndex(conf config.BoardConfig) {
 	createIndexRequest := CreateIndexRequest{
-		OverrideIfExists: forceRecreate,
+		OverrideIfExists: conf.ForceRecreate,
 		Index: CreateIndexRequestIndex{
-			Name:                    fmt.Sprintf("post_%s", board),
+			Name:                    fmt.Sprintf("post_%s", conf.Name),
 			StorageType:             "filesystem",
 			StripStopWords:          false,
 			SetConjunctionByDefault: true,
@@ -308,9 +320,9 @@ func (s *Service) CreateIndex(board string, indexConfiguration config.IndexConfi
 				},
 			},
 			SearchFields:   []string{"comment", "subject", "name", "media_file_name"},
-			ReaderThreads:  indexConfiguration.ReaderThreads,
-			MaxConcurrency: indexConfiguration.MaxConcurrency,
-			WriterBuffer:   indexConfiguration.WriterBuffer,
+			ReaderThreads:  s.readerThreads,
+			MaxConcurrency: s.maxConcurrency,
+			WriterBuffer:   s.writerBuffer,
 			WriterThreads:  1,
 		},
 	}
@@ -332,7 +344,7 @@ func (s *Service) CreateIndex(board string, indexConfiguration config.IndexConfi
 	resp.Body.Close()
 
 	if resp.StatusCode == 400 {
-		log.Printf("Received status 400 creating index for %s\n", board)
+		log.Printf("Received status 400 creating index for %s\n", conf.Name)
 		return
 	}
 

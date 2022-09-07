@@ -6,6 +6,8 @@ import (
 	"github.com/uptrace/bun"
 )
 
+//IndexTracker tracks how far an Lnx index
+//has been synced up with the postgres database
 type IndexTracker struct {
 	bun.BaseModel `bun:"table:index_tracker"`
 

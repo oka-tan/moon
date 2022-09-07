@@ -9,6 +9,9 @@ import (
 var one int64 = 1
 var zero int64 = 0
 
+//Post is an intermediate struct that helps
+//us unmarshal posts in the db to JSON we can
+//send to Lnx
 type Post struct {
 	PostNumber     int64     `json:"post_number"`
 	ThreadNumber   int64     `json:"thread_number"`
@@ -34,6 +37,7 @@ type Post struct {
 	Since4Pass     *int64    `json:"since4pass,omitempty"`
 }
 
+//DbPostToLnxPost turns a db.Post into a Post
 func DbPostToLnxPost(p *db.Post) Post {
 	var media4chanHash *string
 
@@ -68,6 +72,8 @@ func DbPostToLnxPost(p *db.Post) Post {
 	}
 }
 
+//DbPostsToLnxPosts converts an array of db.Post into
+//an array of Post
 func DbPostsToLnxPosts(posts []db.Post) []Post {
 	result := make([]Post, 0, len(posts))
 
@@ -81,17 +87,17 @@ func DbPostsToLnxPosts(posts []db.Post) []Post {
 func boolToInt64(b bool) int64 {
 	if b {
 		return 1
-	} else {
-		return 0
 	}
+
+	return 0
 }
 
 func boolPointerToInt64Pointer(b *bool) *int64 {
 	if b != nil && *b {
 		return &one
-	} else {
-		return &zero
 	}
+
+	return &zero
 }
 
 func int16PointerToInt64Pointer(i *int16) *int64 {

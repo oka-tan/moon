@@ -15,8 +15,8 @@ moon
 *.pdf
 
 #Junk
-config.example.json
-config.json
+config.example.toml
+config.toml
 shell.nix
 README.md
 LICENSE

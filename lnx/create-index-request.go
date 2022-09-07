@@ -1,10 +1,14 @@
 package lnx
 
+//CreateIndexRequest represents an index creation request
+//to be Marshalled to JSON and sent to the Lnx instance
 type CreateIndexRequest struct {
 	OverrideIfExists bool                    `json:"override_if_exists"`
 	Index            CreateIndexRequestIndex `json:"index"`
 }
 
+//CreateIndexRequestIndex represents the index data contained
+//in an index creation request
 type CreateIndexRequestIndex struct {
 	Name                    string                `json:"name"`
 	StorageType             string                `json:"storage_type"`
@@ -18,6 +22,7 @@ type CreateIndexRequestIndex struct {
 	WriterThreads           int                   `json:"writer_threads"`
 }
 
+//IndexField is a field inside an Lnx index
 type IndexField struct {
 	Type     string `json:"type"`
 	Stored   bool   `json:"stored"`

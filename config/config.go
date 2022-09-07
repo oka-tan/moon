@@ -1,66 +1,66 @@
+//Package config wraps Moon configuration
 package config
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
+
+	"github.com/BurntSushi/toml"
 )
 
 //Config parametrizes Moon's configuration
 type Config struct {
-	Boards         []BoardConfig
-	PostgresConfig PostgresConfig
-	LnxConfig      LnxConfig
+	Boards         []BoardConfig  `toml:"boards"`
+	PostgresConfig PostgresConfig `toml:"postgres"`
+	LnxConfig      LnxConfig      `toml:"lnx"`
 }
 
 //BoardConfig parametrizes Moon's configuration
 //for indexing a board in Lnx
 type BoardConfig struct {
-	Name          string
-	ForceRecreate bool
+	Name          string `toml:"name"`
+	ForceRecreate bool   `toml:"force_recreate"`
 }
 
 //PostgresConfig parametrizes configuration
 //for the db connection
 type PostgresConfig struct {
-	ConnectionString string
+	ConnectionString string `toml:"connection_string"`
 }
 
+//LnxConfig parametrizes configuration for
+//Lnx searching and indexing
 type LnxConfig struct {
-	Host          string
-	Port          int
-	Configuration IndexConfiguration
-	BatchSize     int
-	NapTime       string
+	Host           string `toml:"host"`
+	Port           int    `toml:"port"`
+	BatchSize      int    `toml:"batch_size"`
+	NapTime        string `toml:"nap_time"`
+	ReaderThreads  int    `toml:"reader_threads"`
+	MaxConcurrency int    `toml:"max_concurrency"`
+	WriterBuffer   int    `toml:"writer_buffer"`
 }
 
 //LoadConfig reads config.json and unmarshals it into a Config struct.
-//Errors might be returned due to IO or invalid JSON.
-func LoadConfig() (Config, error) {
+func LoadConfig() Config {
 	configFile := os.Getenv("MOON_CONFIG")
 
 	if configFile == "" {
-		configFile = "./config.json"
+		configFile = "./config.toml"
 	}
 
-	blob, err := ioutil.ReadFile(configFile)
+	f, err := os.Open(configFile)
 
 	if err != nil {
-		return Config{}, fmt.Errorf("Error loading configuration file: %s", err)
+		log.Fatalf("Error loading configuration file: %s", err)
 	}
+
+	defer f.Close()
 
 	var conf Config
 
-	err = json.Unmarshal(blob, &conf)
-
-	if err != nil {
-		return Config{}, fmt.Errorf(
-			"Error unmarshalling configuration file contents to JSON:\n File contents: %s\n Error message: %s",
-			blob,
-			err,
-		)
+	if _, err := toml.NewDecoder(f).Decode(&conf); err != nil {
+		log.Fatalln(err)
 	}
 
-	return conf, nil
+	return conf
 }
