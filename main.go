@@ -86,6 +86,7 @@ func main() {
 			err = tx.NewSelect().
 				Model(&indexTracker).
 				Where("board = ?", board.Name).
+				For("NO KEY UPDATE").
 				Scan(context.Background())
 
 			if err != nil {

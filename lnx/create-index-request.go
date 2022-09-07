@@ -19,8 +19,9 @@ type CreateIndexRequestIndex struct {
 }
 
 type IndexField struct {
-	Type    string `json:"type"`
-	Stored  bool   `json:"stored"`
-	Indexed bool   `json:"indexed"`
-	Fast    bool   `json:"fast"`
+	Type     string `json:"type"`
+	Stored   bool   `json:"stored"`
+	Indexed  bool   `json:"indexed"`
+	Fast     bool   `json:"fast"`
+	Required bool   `json:"required"`
 }

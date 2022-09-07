@@ -6,36 +6,40 @@ import (
 	"time"
 )
 
+var one int64 = 1
+var zero int64 = 0
+
 type Post struct {
 	PostNumber     int64     `json:"post_number"`
 	ThreadNumber   int64     `json:"thread_number"`
 	Op             int64     `json:"op"`
 	Deleted        int64     `json:"deleted"`
 	TimePosted     time.Time `json:"time_posted"`
-	Name           string    `json:"name"`
-	Tripcode       string    `json:"tripcode"`
-	Capcode        string    `json:"capcode"`
-	PosterID       string    `json:"poster_id"`
-	Country        string    `json:"country"`
-	Flag           string    `json:"flag"`
-	Email          string    `json:"email"`
-	Subject        string    `json:"subject"`
-	Comment        string    `json:"comment"`
+	Name           *string   `json:"name,omitempty"`
+	Tripcode       *string   `json:"tripcode,omitempty"`
+	Capcode        *string   `json:"capcode,omitempty"`
+	PosterID       *string   `json:"poster_id,omitempty"`
+	Country        *string   `json:"country,omitempty"`
+	Flag           *string   `json:"flag,omitempty"`
+	Email          *string   `json:"email,omitempty"`
+	Subject        *string   `json:"subject,omitempty"`
+	Comment        *string   `json:"comment,omitempty"`
 	HasMedia       int64     `json:"has_media"`
-	MediaDeleted   int64     `json:"media_deleted"`
-	Media4chanHash string    `json:"media_4chan_hash"`
-	MediaExtension string    `json:"media_extension"`
-	MediaFileName  string    `json:"media_file_name"`
-	Spoiler        int64     `json:"spoiler"`
-	Sticky         int64     `json:"sticky"`
-	Since4Pass     int64     `json:"since4pass"`
+	MediaDeleted   *int64    `json:"media_deleted,omitempty"`
+	Media4chanHash *string   `json:"media_4chan_hash,omitempty"`
+	MediaExtension *string   `json:"media_extension,omitempty"`
+	MediaFileName  *string   `json:"media_file_name,omitempty"`
+	Spoiler        *int64    `json:"spoiler,omitempty"`
+	Sticky         *int64    `json:"sticky,omitempty"`
+	Since4Pass     *int64    `json:"since4pass,omitempty"`
 }
 
 func DbPostToLnxPost(p *db.Post) Post {
-	var media4chanHash string
+	var media4chanHash *string
 
 	if p.Media4chanHash != nil {
-		media4chanHash = base64.StdEncoding.EncodeToString(*p.Media4chanHash)
+		media4chanHashV := base64.StdEncoding.EncodeToString(*p.Media4chanHash)
+		media4chanHash = &media4chanHashV
 	}
 
 	return Post{
@@ -44,23 +48,23 @@ func DbPostToLnxPost(p *db.Post) Post {
 		Op:             boolToInt64(p.Op),
 		Deleted:        boolToInt64(p.Deleted),
 		TimePosted:     p.TimePosted,
-		Name:           derefString(p.Name),
-		Tripcode:       derefString(p.Tripcode),
-		Capcode:        derefString(p.Capcode),
-		PosterID:       derefString(p.PosterID),
-		Country:        derefString(p.Country),
-		Flag:           derefString(p.Flag),
-		Email:          derefString(p.Email),
-		Subject:        derefString(p.Subject),
-		Comment:        derefString(p.Comment),
+		Name:           p.Name,
+		Tripcode:       p.Tripcode,
+		Capcode:        p.Capcode,
+		PosterID:       p.PosterID,
+		Country:        p.Country,
+		Flag:           p.Flag,
+		Email:          p.Email,
+		Subject:        p.Subject,
+		Comment:        p.Comment,
 		HasMedia:       boolToInt64(p.HasMedia),
-		MediaDeleted:   boolPointerToInt64(p.MediaDeleted),
+		MediaDeleted:   boolPointerToInt64Pointer(p.MediaDeleted),
 		Media4chanHash: media4chanHash,
-		MediaExtension: derefString(p.MediaExtension),
-		MediaFileName:  derefString(p.MediaFileName),
-		Spoiler:        boolPointerToInt64(p.Spoiler),
-		Sticky:         boolPointerToInt64(p.Sticky),
-		Since4Pass:     derefInt16(p.Since4Pass),
+		MediaExtension: p.MediaExtension,
+		MediaFileName:  p.MediaFileName,
+		Spoiler:        boolPointerToInt64Pointer(p.Spoiler),
+		Sticky:         boolPointerToInt64Pointer(p.Sticky),
+		Since4Pass:     int16PointerToInt64Pointer(p.Since4Pass),
 	}
 }
 
@@ -82,34 +86,19 @@ func boolToInt64(b bool) int64 {
 	}
 }
 
-func boolPointerToInt64(b *bool) int64 {
+func boolPointerToInt64Pointer(b *bool) *int64 {
 	if b != nil && *b {
-		return 1
+		return &one
 	} else {
-		return 0
+		return &zero
 	}
 }
 
-func derefInt16(i *int16) int64 {
-	if i != nil {
-		return int64(*i)
-	} else {
-		return 0
+func int16PointerToInt64Pointer(i *int16) *int64 {
+	if i == nil {
+		return nil
 	}
-}
 
-func derefInt64(i *int64) int64 {
-	if i != nil {
-		return *i
-	} else {
-		return 0
-	}
-}
-
-func derefString(s *string) string {
-	if s != nil {
-		return *s
-	} else {
-		return ""
-	}
+	v := int64(*i)
+	return &v
 }
